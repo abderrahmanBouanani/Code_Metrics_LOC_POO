@@ -4,4 +4,5 @@ package library.model;
 public interface Lendable {
     void borrow();
     void returnItem();
+    String getDescription();
 }

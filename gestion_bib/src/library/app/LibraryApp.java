@@ -19,6 +19,5 @@ public class LibraryApp {
         library.listAllItems();
 
         // Méthode pour TP SonarQube (complexité)
-        book1.complexMethodExample(10);
     }
 }

@@ -19,23 +19,19 @@ public class Library {
         items.remove(item);
     }
 
-    // Méthode volontairement incorrecte pour TP SonarQube
     public List<Lendable> getAvailableItems() {
         List<Lendable> availableItems = new ArrayList<>();
         for (Lendable item : items) {
-            availableItems.add(item); // ne tient pas compte de l'état borrowed
+            if (item instanceof Book && !((Book) item).isBorrowed()) {
+                availableItems.add(item);
+            }
         }
         return availableItems;
     }
 
     public void listAllItems() {
         for (Lendable item : items) {
-            if (item instanceof Book) {
-                Book b = (Book) item;
-                System.out.println(b.getTitle() + " by " + b.getAuthor());
-            } else {
-                System.out.println("Unknown item type");
-            }
+            System.out.println(item.getDescription());
         }
     }
 }

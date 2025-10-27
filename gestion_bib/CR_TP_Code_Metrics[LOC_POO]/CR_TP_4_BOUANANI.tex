@@ -1,0 +1,167 @@
+\documentclass[11pt, a4paper]{article}
+
+% Packages de base
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{graphicx}
+\geometry{a4paper, margin=2.5cm}
+
+% Packages pour la mise en page
+\usepackage{graphicx}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{array}
+
+% Configuration de l'en-tête et du pied de page
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhf{}
+\fancyfoot[L]{Bouanani Abderrahman}
+\fancyfoot[R]{\textbf{Page \thepage/\pageref{LastPage}}}
+
+\parindent=0cm % Désactive les alinéas
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \includegraphics[width=0.4\textwidth]{figures/ENSAA.png}
+    \hfill
+    \includegraphics[width=0.4\textwidth]{figures/UIZ.png}
+    
+    \vspace{2cm}
+    
+    {\scshape\LARGE École Nationale des Sciences Appliquées d'Agadir\par}
+    \vspace{0.5cm}
+    {\scshape\Large Filière : DLA2\par}
+    
+    \vspace{1.5cm}
+    
+    {\huge\bfseries TP Qualité Logicielle 4\par}
+    \vspace{0.5cm}
+    {\Large\bfseries Analyse des Métriques Orientées Objet avec CKJM\par}
+    
+
+    \vspace{2cm}
+    \large
+    \textit{Réalisé par :} \textbf{Abderrahman BOUANANI}\par
+    \vspace{1cm}
+    \textit{Encadré par :} \textbf{Prof. Aimad QAZDAR}\par
+
+    \vfill
+    
+    
+    \vspace{1cm}
+    
+    {\large Année Universitaire : 2025-2026\par}
+    
+\end{titlepage}
+
+\newpage
+
+% Contenu du TP
+\section{Introduction}
+Ce rapport présente l'analyse des métriques logicielles d'une application de gestion de bibliothèque. L'objectif est d'évaluer la qualité du code source à l'aide de l'outil CKJM, d'identifier les classes problématiques et de proposer des opérations de refactoring pour améliorer la maintenabilité et la robustesse du code. L'analyse se conclut par une comparaison des métriques avant et après les modifications.
+
+\section{Synthèse des Métriques Initiales}
+L'analyse initiale avec CKJM a produit les métriques suivantes pour chaque classe du projet :
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Classe} & \textbf{WMC} & \textbf{DIT} & \textbf{NOC} & \textbf{CBO} & \textbf{RFC} & \textbf{LCOM} & \textbf{Ca} & \textbf{NPM} \\
+\hline
+\texttt{library.model.Book} & 7 & 1 & 1 & 1 & 13 & 5 & 3 & 7 \\
+\hline
+\texttt{library.model.DigitalBook} & 2 & 0 & 0 & 1 & 3 & 0 & 1 & 2 \\
+\hline
+\texttt{library.model.Lendable} & 2 & 1 & 0 & 0 & 2 & 1 & 4 & 2 \\
+\hline
+\texttt{library.service.Library} & 5 & 1 & 0 & 2 & 18 & 0 & 1 & 5 \\
+\hline
+\texttt{library.service.Customer} & 3 & 1 & 0 & 1 & 10 & 0 & 0 & 3 \\
+\hline
+\texttt{library.app.LibraryApp} & 2 & 1 & 0 & 4 & 10 & 1 & 0 & 2 \\
+\hline
+\end{tabular}
+\caption{Métriques CKJM avant refactoring.}
+\label{tab:metrics_before}
+\end{table}
+
+\section{Interprétation Critique}
+L'analyse des métriques initiales révèle plusieurs points d'attention :
+\begin{itemize}
+    \item \textbf{Classe \texttt{Book} :} Présente une complexité (WMC=7) et un manque de cohésion (LCOM=5) élevés. La cause principale est une méthode de test non liée aux responsabilités de la classe.
+    \item \textbf{Classe \texttt{Library} :} A un nombre de réponses possibles (RFC=18) très élevé, suggérant qu'elle possède trop de responsabilités. De plus, son couplage (CBO=2) et sa complexité (WMC=5) sont significatifs.
+    \item \textbf{Couplage :} La classe \texttt{LibraryApp} a un CBO de 4, indiquant une forte dépendance aux autres classes, ce qui est attendu pour une classe principale.
+\end{itemize}
+
+\section{Propositions de Refactoring}
+Pour adresser ces problèmes, les trois opérations de refactoring suivantes ont été mises en œuvre :
+\begin{enumerate}
+    \item \textbf{Améliorer la cohésion de \texttt{Book} :} Suppression de la méthode \texttt{complexMethodExample}, qui était une source de complexité inutile et n'avait aucun lien avec la logique métier de la classe.
+    \item \textbf{Utiliser le polymorphisme dans \texttt{Library} :} Remplacement des vérifications \texttt{instanceof} par une approche polymorphique. Une méthode \texttt{getDescription()} a été ajoutée à l'interface \texttt{Lendable} et implémentée dans les classes \texttt{Book} et \texttt{DigitalBook}. Cela réduit le couplage et simplifie la méthode \texttt{listAllItems}.
+    \item \textbf{Corriger la logique métier :} La méthode \texttt{getAvailableItems} a été corrigée pour ne retourner que les livres non empruntés, améliorant ainsi la robustesse de l'application.
+\end{enumerate}
+
+\section{Comparaison Avant / Après Refactoring}
+Après application des modifications, le code a été recompilé et analysé à nouveau. Le tableau ci-dessous compare les métriques avant et après refactoring.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+ & \multicolumn{2}{c|}{\textbf{Avant Refactoring}} & \multicolumn{2}{c|}{\textbf{Après Refactoring}} \\
+\hline
+\textbf{Classe} & \textbf{WMC} & \textbf{LCOM} & \textbf{WMC} & \textbf{LCOM} \\
+\hline
+\texttt{library.model.Book} & 7 & 5 & \textbf{3} & \textbf{0} \\
+\hline
+\texttt{library.model.DigitalBook} & 2 & 0 & 3 & 1 \\
+\hline
+\texttt{library.model.Lendable} & 2 & 1 & 3 & 3 \\
+\hline
+\texttt{library.service.Library} & 5 & 0 & 5 & 0 \\
+\hline
+\end{tabular}
+\caption{Évolution des métriques WMC et LCOM.}
+\label{tab:metrics_compare}
+\end{table}
+
+\subsection{Analyse de l'Évolution}
+\begin{itemize}
+    \item \textbf{Classe \texttt{Book} :} Le changement est spectaculaire. Le WMC a chuté de 7 à 3 et le LCOM de 5 à 0. La classe est maintenant beaucoup plus simple, plus cohérente et respecte le principe de responsabilité unique.
+    \item \textbf{Classe \texttt{DigitalBook} et \texttt{Lendable} :} L'ajout de la méthode \texttt{getDescription} a légèrement augmenté leur complexité (WMC), ce qui est un compromis acceptable pour le gain obtenu en flexibilité et en réduction du couplage dans la classe \texttt{Library}.
+    \item \textbf{Classe \texttt{Library} :} Bien que son WMC n'ait pas changé, le refactoring de \texttt{listAllItems} a éliminé une mauvaise pratique de conception (\texttt{instanceof}), rendant le code plus propre et plus facile à étendre.
+\end{itemize}
+
+\section{Conclusion}
+Le refactoring a eu un impact très positif sur la qualité globale du code. En ciblant les classes avec les métriques les plus problématiques, nous avons réussi à :
+\begin{itemize}
+    \item \textbf{Améliorer la maintenabilité :} La réduction de la complexité (WMC) et l'amélioration de la cohésion (LCOM) rendent le code plus facile à comprendre, à modifier et à déboguer.
+    \item \textbf{Augmenter la robustesse :} La correction des erreurs logiques et l'utilisation de meilleures pratiques de conception (polymorphisme) réduisent les risques de bugs futurs.
+    \item \textbf{Favoriser la réutilisabilité :} Des classes plus cohérentes et moins couplées sont plus faciles à réutiliser dans d'autres contextes.
+\end{itemize}
+Ce TP démontre l'importance des métriques logicielles comme outil de diagnostic pour guider les efforts de refactoring et améliorer durablement la qualité d'un projet.
+
+\section*{Annexes}
+\subsection*{Code Source}
+La version finale du code source, après refactoring, est disponible sur GitHub à l'adresse suivante :
+\href{https://github.com/abderrahmanBouanani/Code_Metrics_LOC_POO}{abderrahmanBouanani/Code\_Metrics\_LOC\_POO}
+
+\end{document}

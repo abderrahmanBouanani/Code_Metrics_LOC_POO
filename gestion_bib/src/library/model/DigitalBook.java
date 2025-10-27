@@ -11,4 +11,9 @@ public class DigitalBook extends Book {
     public int getFileSizeMB() {
         return fileSizeMB;
     }
+
+    @Override
+    public String getDescription() {
+        return getTitle() + " by " + getAuthor() + " (Digital)";
+    }
 }
